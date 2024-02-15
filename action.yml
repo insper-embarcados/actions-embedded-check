@@ -1,0 +1,34 @@
+name: 'Code Quality'
+desciption: 'Code Quality check'
+author: 'rafaelcorsi'
+
+inputs:
+  c_file:
+    description: 'C file name and path'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install cppcheck
+      shell: bash
+      run: |
+        sudo apt install cppcheck
+
+    - name: Install firmware-best-practice-checker
+      run: |
+        git clone https://github.com/insper-education/firmware-best-practice-checker checker
+        python -m pip install --upgrade pip
+        pip install -r checker/requirements.txt
+
+    - name: run cppcheck
+      run: |
+        cppcheck -iASF -ioled --enable=all --suppress=missingIncludeSystem --suppress=integerOverflow --suppress=unmatchedSuppression --dump "${{inputs.c_file}}"
+
+    - name: run firmware-best-practice-cheker
+      run: |
+        python3 checker/check.py "${{inputs.c_file}}".dump
