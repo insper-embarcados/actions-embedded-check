@@ -6,6 +6,9 @@ inputs:
   c_file:
     description: 'C file name and path'
     required: true
+  rtos:
+    description: 'Enable RTOS verification'
+    default: false
 
 runs:
   using: "composite"
@@ -31,7 +34,13 @@ runs:
       run: |
         cppcheck -iASF -ioled --enable=all --suppress=missingIncludeSystem --suppress=integerOverflow --suppress=unmatchedSuppression --dump "${{inputs.c_file}}"
 
-    - name: run firmware-best-practice-cheker
-      shell: bash
+
+    - if: ${{ inputs.rtos == 'false' }}
       run: |
         python3 checker/check.py "${{inputs.c_file}}".dump
+      shell: bash
+
+    - if: ${{ inputs.rtos == 'true' }}
+      run: |
+        python3 checker/check.py --rtos "${{inputs.c_file}}".dump
+      shell: bash
