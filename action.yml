@@ -9,6 +9,10 @@ inputs:
   rtos:
     description: 'Enable RTOS verification'
     default: false
+  disable_rule:
+    description: 'Disable rules'
+    default: 'none'
+    required: false
 
 runs:
   using: "composite"
@@ -37,10 +41,10 @@ runs:
 
     - if: ${{ inputs.rtos == 'false' }}
       run: |
-        python3 checker/check.py "${{inputs.c_file}}".dump
+        python3 checker/check.py --disable "${{inputs.disable_rule}}" "${{inputs.c_file}}".dump
       shell: bash
 
     - if: ${{ inputs.rtos == 'true' }}
       run: |
-        python3 checker/check.py --rtos "${{inputs.c_file}}".dump
+        python3 checker/check.py --rtos --disable "${{inputs.disable_rule}}" "${{inputs.c_file}}".dump
       shell: bash
